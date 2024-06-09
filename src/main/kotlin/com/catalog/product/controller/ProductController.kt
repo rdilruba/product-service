@@ -1,5 +1,6 @@
 package com.catalog.product.controller
 
+import com.amazonaws.services.s3.model.ObjectMetadata
 import com.catalog.product.model.Product
 import com.catalog.product.service.ProductService
 import org.springframework.data.domain.Page
@@ -22,7 +23,10 @@ class ProductController(private val productService: ProductService) {
 
     @PostMapping("/products")
     fun createProduct(@RequestPart("product") product: Product, @RequestPart("image") imageFile: MultipartFile): ResponseEntity<Product> {
-        val savedProduct = productService.saveProduct(product)
+        val inputStream = imageFile.inputStream
+        val metadata = ObjectMetadata()
+        metadata.contentType = imageFile.contentType
+        val savedProduct = productService.saveProduct(product, inputStream, metadata)
         return ResponseEntity(savedProduct, HttpStatus.CREATED)
     }
 
